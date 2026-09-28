@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CARSAT Grip Strength</title>
+  <style>
+    :root {
+      --bg-color: #050811;
+      --card-bg: rgba(15, 23, 42, 0.92);
+      --accent: #f59e0b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: rgba(255, 255, 255, 0.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Image de fond animée (Affiche CARSAT Grip Strength) */
+    .hero-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-image: url('CarsatGP.png');
+      background-repeat: no-repeat;
+      z-index: 1;
+      animation: introPoster 2.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      background-size: contain;
+      background-position: center center;
+    }
+
+    @keyframes introPoster {
+      0% {
+        width: 100vw;
+        left: 0;
+        opacity: 1;
+      }
+      100% {
+        width: 30vw;
+        left: 0;
+        opacity: 0.85;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      @keyframes introPoster {
+        0% { width: 100vw; left: 0; opacity: 1; }
+        100% { width: 100vw; left: 0; opacity: 0.15; }
+      }
+    }
+
+    /* Overlay pour le GIF Predator */
+    #gif-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(5, 8, 17, 0.88);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      backdrop-filter: blur(8px);
+    }
+
+    #gif-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #gif-overlay .gif-box {
+      text-align: center;
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    #gif-overlay img {
+      max-width: 480px;
+      width: 90vw;
+      border-radius: 12px;
+      box-shadow: 0 0 35px rgba(245, 158, 11, 0.5);
+      border: 3px solid var(--accent);
+    }
+
+    #gif-overlay h3 {
+      margin-top: 15px;
+      font-size: 2rem;
+      color: var(--accent);
+      text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+      letter-spacing: 1px;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0.6); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* Conteneur principal */
+    .app-container {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      animation: fadeInContent 1s ease-out 1.5s forwards;
+      opacity: 0;
+    }
+
+    @keyframes fadeInContent {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    header { 
+      text-align: center; 
+      margin-bottom: 20px; 
+      background: rgba(5, 8, 17, 0.8);
+      padding: 16px 20px;
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+    }
+    header h1 { 
+      font-size: 2.4rem; 
+      color: var(--accent); 
+      text-shadow: 0 2px 8px rgba(0,0,0,0.9);
+      letter-spacing: 1px;
+    }
+
+    /* Layout */
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (min-width: 1025px) {
+      .main-layout {
+        margin-left: 30vw;
+        grid-template-columns: 360px 1fr;
+      }
+    }
+
+    .left-column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card { 
+      background-color: var(--card-bg); 
+      backdrop-filter: blur(12px); 
+      border-radius: 12px; 
+      padding: 20px; 
+      border: 1px solid var(--border); 
+      box-shadow: 0 8px 24px rgba(0,0,0,0.8); 
+    }
+    .card h2 { font-size: 1.2rem; margin-bottom: 15px; border-bottom: 2px solid var(--border); padding-bottom: 8px; }
+
+    .card-leaderboard {
+      min-height: calc(100vh - 140px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .form-group { margin-bottom: 12px; }
+    label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 4px; }
+    input, select { width: 100%; padding: 9px; border-radius: 6px; border: 1px solid var(--border); background-color: rgba(5, 8, 17, 0.9); color: var(--text); font-size: 0.95rem; }
+    input:focus, select:focus { outline: 2px solid var(--accent); }
+
+    .btn-submit { 
+      width: 100%; 
+      padding: 12px; 
+      border: none; 
+      border-radius: 6px; 
+      background-color: var(--accent); 
+      color: #000; 
+      font-weight: bold; 
+      font-size: 1rem; 
+      cursor: pointer; 
+      transition: opacity 0.2s; 
+      margin-top: 5px; 
+    }
+    .btn-submit:hover { opacity: 0.9; }
+
+    .reset-btn { 
+      width: 100%; 
+      background: #dc2626; 
+      color: white; 
+      border: none; 
+      border-radius: 6px; 
+      margin-top: 10px; 
+      font-size: 0.8rem; 
+      padding: 8px; 
+      cursor: pointer; 
+    }
+
+    .export-btn {
+      width: 100%;
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px dashed var(--border);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.2s ease;
+    }
+    .export-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border-color: var(--text-muted);
+    }
+
+    .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; flex-wrap: wrap; }
+    .filter-btn, .toggle-btn { 
+      background: rgba(5, 8, 17, 0.8); 
+      color: var(--text); 
+      border: 1px solid var(--border); 
+      padding: 5px 12px; 
+      border-radius: 20px; 
+      cursor: pointer; 
+      font-size: 0.85rem; 
+      transition: all 0.2s ease;
+    }
+    .filter-btn.active { background: var(--accent); color: #000; font-weight: bold; border-color: var(--accent); }
+    .toggle-btn:hover { border-color: var(--text-muted); background: rgba(255,255,255,0.05); }
+
+    .table-wrapper { overflow-x: auto; flex-grow: 1; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    th { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; }
+    
+    .rank { font-weight: bold; width: 35px; text-align: center; }
+    .rank-1 { color: #ffd700; font-size: 1.2rem; }
+    .rank-2 { color: #c0c0c0; font-size: 1.1rem; }
+    .rank-3 { color: #cd7f32; font-size: 1.1rem; }
+    
+    .score-val { font-weight: bold; color: var(--accent); }
+    .ratio-val { font-weight: bold; color: #38bdf8; }
+    .weight-val { color: var(--text-muted); }
+    .badge { padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; font-weight: bold; display: inline-block; margin-right: 2px; }
+    .badge-H { background: #1e3a8a; color: #93c5fd; }
+    .badge-F { background: #831843; color: #fbcfe8; }
+    
+    .badge-hulk { background: #15803d; color: #bbf7d0; border: 1px solid #22c55e; }
+    .badge-bruce { background: #b45309; color: #fef08a; border: 1px solid #eab308; }
+    .badge-hook { background: #475569; color: #cbd5e1; border: 1px solid #94a3b8; }
+    .badge-king { background: #7c2d12; color: #fef08a; border: 1px solid #f59e0b; margin-left: 6px; }
+
+    .btn-delete { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1rem; width: auto; padding: 0; }
+    
+    .col-hidden { display: none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- Image en arrière-plan animée -->
+  <div class="hero-bg"></div>
+
+  <!-- Overlay GIF Predator lors de la validation -->
+  <div id="gif-overlay">
+    <div class="gif-box">
+      <img id="celebration-gif" src="gifpredator.gif" alt="Score Enregistré !">
+      <h3>SCORE VALIDÉ ! 🤝🔥</h3>
+    </div>
+  </div>
+
+  <!-- Application Web -->
+  <div class="app-container">
+    <header>
+      <h1>CARSAT Grip Strength</h1>
+    </header>
+
+    <div class="main-layout">
+      
+      <!-- COLONNE GAUCHE : Formulaire + Moyennes par Groupe -->
+      <div class="left-column">
+        
+        <!-- Formulaire de saisie -->
+        <div class="card">
+          <h2>Saisir un score</h2>
+          <form id="score-form">
+            <div class="form-group">
+              <label for="name">Nom / Pseudo</label>
+              <input type="text" id="name" required placeholder="Ex: Marc">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="category">Catégorie</label>
+                <select id="category">
+                  <option value="H">Homme</option>
+                  <option value="F">Femme</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="service">Groupe / Service</label>
+                <input type="text" id="service" required placeholder="Ex: Ventes">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="weight">Poids de corps (kg)</label>
+                <input type="number" id="weight" step="0.1" min="30" max="250" placeholder="Ex: 75">
+              </div>
+              <div class="form-group">
+                <label for="score">Grip (kg)</label>
+                <input type="number" id="score" step="0.1" min="0" max="200" required placeholder="Ex: 58.5">
+              </div>
+            </div>
+
+            <button type="submit" class="btn-submit">Ajouter au classement</button>
+          </form>
+          
+          <button class="reset-btn" id="reset-btn">Réinitialiser tout le concours</button>
+          <button class="export-btn" id="export-csv-btn">📥 Exporter la liste (CSV)</button>
+        </div>
+
+        <!-- Statistiques par groupe -->
+        <div class="card">
+          <h2>Moyenne par Groupe 🏢</h2>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Groupe</th>
+                  <th>Moy. Grip</th>
+                  <th>Part. (H/F)</th>
+                </tr>
+              </thead>
+              <tbody id="service-stats-body">
+                <!-- Inséré dynamiquement -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- COLONNE DROITE : Classement Général -->
+      <div class="card card-leaderboard">
+        <div class="controls">
+          <h2>Classement</h2>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="toggle-btn" id="toggle-weight-btn">👁️ Masquer Poids</button>
+            <div>
+              <button class="filter-btn active" data-filter="ALL">Tous</button>
+              <button class="filter-btn" data-filter="H">Hommes</button>
+              <button class="filter-btn" data-filter="F">Femmes</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th style="text-align: center;">#</th>
+                <th>Nom</th>
+                <th>Groupe</th>
+                <th>Cat.</th>
+                <th>Grip</th>
+                <th>Ratio</th>
+                <th class="col-weight">Poids de corps</th>
+                <th>Badges</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+              <!-- Données insérées en JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const INITIAL_PARTICIPANTS = [
+      { id: "1", name: "Anthony T", service: "SCII", category: "H", weight: 70, score: 71 },
+      { id: "2", name: "Tom", service: "ADIC", category: "H", weight: 105, score: 68.5 },
+      { id: "3", name: "Romain Navarron", service: "SCII", category: "H", weight: 108, score: 64 },
+      { id: "4", name: "Swen", service: "SCII", category: "H", weight: 80, score: 52 },
+      { id: "5", name: "Guillaume Chanas", service: "SCII", category: "H", weight: 76, score: 85 },
+      { id: "6", name: "Gilles", service: "SCII", category: "H", weight: 62, score: 67 },
+      { id: "7", name: "Jessee", service: "ADIC", category: "H", weight: 96, score: 97 },
+      { id: "8", name: "Nathan", service: "SCII", category: "H", weight: 70, score: 61 },
+      { id: "9", name: "Julien", service: "SCII", category: "H", weight: 82, score: 96 },
+      { id: "10", name: "Pierre Aussenard", service: "SCII", category: "H", weight: 100, score: 68 },
+      { id: "11", name: "François", service: "ADIC", category: "H", weight: 67, score: 63 },
+      { id: "12", name: "Adrien F", service: "SCII", category: "H", weight: 90, score: 80 },
+      { id: "13", name: "halil", service: "ADIC", category: "H", weight: 55, score: 51.2 },
+      { id: "14", name: "Alberic", service: "ADIC", category: "H", weight: 66, score: 54.1 },
+      { id: "15", name: "Paul", service: "SCII", category: "H", weight: 61, score: 61.9 },
+      { id: "16", name: "Franklin", service: "ADIC", category: "H", weight: 71, score: 60 },
+      { id: "17", name: "Camille", service: "SCII", category: "H", weight: 71, score: 63 },
+      { id: "18", name: "Saadi", service: "SCII", category: "H", weight: 85, score: 74 }
+    ];
+
+    let participants = JSON.parse(localStorage.getItem('grip_participants_v2')) || INITIAL_PARTICIPANTS;
+    let currentFilter = 'ALL';
+    let isWeightColumnVisible = true;
+
+    const form = document.getElementById('score-form');
+    const leaderboardBody = document.getElementById('leaderboard-body');
+    const serviceStatsBody = document.getElementById('service-stats-body');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const exportCsvBtn = document.getElementById('export-csv-btn');
+    const toggleWeightBtn = document.getElementById('toggle-weight-btn');
+    const gifOverlay = document.getElementById('gif-overlay');
+    const celebrationGif = document.getElementById('celebration-gif');
+
+    function saveData() {
+      localStorage.setItem('grip_participants_v2', JSON.stringify(participants));
+    }
+
+    function renderLeaderboard() {
+      leaderboardBody.innerHTML = '';
+      
+      let maxScore = -1;
+      let hulkId = null;
+
+      let minScore = Infinity;
+      let hookId = null;
+
+      let maxRatio = -1;
+      let bruceLeeId = null;
+
+      participants.forEach(p => {
+        const ratio = (p.weight && p.weight > 0) ? (p.score / p.weight) : 0;
+        
+        if (p.score > maxScore) {
+          maxScore = p.score;
+          hulkId = p.id;
+        }
+
+        if (p.score < minScore) {
+          minScore = p.score;
+          hookId = p.id;
+        }
+
+        if (ratio > maxRatio && ratio > 0) {
+          maxRatio = ratio;
+          bruceLeeId = p.id;
+        }
+      });
+
+      let filtered = participants.filter(p => currentFilter === 'ALL' || p.category === currentFilter);
+      filtered.sort((a, b) => b.score - a.score);
+
+      if (filtered.length === 0) {
+        leaderboardBody.innerHTML = `<tr><td colspan="9" style="text-align:center; color: var(--text-muted); padding: 30px;">Aucun participant pour le moment.</td></tr>`;
+      } else {
+        filtered.forEach((p, index) => {
+          const rank = index + 1;
+          let rankClass = '';
+          let rankSymbol = rank;
+
+          if (rank === 1) { rankClass = 'rank-1'; rankSymbol = '🥇'; }
+          else if (rank === 2) { rankClass = 'rank-2'; rankSymbol = '🥈'; }
+          else if (rank === 3) { rankClass = 'rank-3'; rankSymbol = '🥉'; }
+
+          const ratio = (p.weight && p.weight > 0) ? (p.score / p.weight).toFixed(2) : '-';
+
+          let badgeHtml = '';
+          if (p.id === hulkId && maxScore > 0) {
+            badgeHtml += `<span class="badge badge-hulk" title="Plus gros score absolu">🟢 Hulk</span>`;
+          }
+          if (p.id === bruceLeeId && maxRatio > 0) {
+            badgeHtml += `<span class="badge badge-bruce" title="Meilleur ratio Poids/Puissance">🟡 Bruce Lee</span>`;
+          }
+          if (p.id === hookId && participants.length > 1) {
+            badgeHtml += `<span class="badge badge-hook" title="Grip le plus faible">🏴‍☠️ Capitaine Crochet</span>`;
+          }
+
+          const hiddenClass = isWeightColumnVisible ? '' : 'col-hidden';
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="rank ${rankClass}">${rankSymbol}</td>
+            <td><strong>${escapeHtml(p.name)}</strong></td>
+            <td>${escapeHtml(p.service || '-')}</td>
+            <td><span class="badge badge-${p.category}">${p.category === 'H' ? 'H' : 'F'}</span></td>
+            <td class="score-val">${p.score.toFixed(1)} kg</td>
+            <td class="ratio-val">${ratio !== '-' ? ratio + ' x' : '-'}</td>
+            <td class="weight-val col-weight ${hiddenClass}">${p.weight ? p.weight.toFixed(1) + ' kg' : '-'}</td>
+            <td>${badgeHtml || '-'}</td>
+            <td><button class="btn-delete" onclick="deleteParticipant('${p.id}')" title="Supprimer">✕</button></td>
+          `;
+          leaderboardBody.appendChild(tr);
+        });
+      }
+
+      const thWeight = document.querySelector('th.col-weight');
+      if (thWeight) {
+        if (isWeightColumnVisible) {
+          thWeight.classList.remove('col-hidden');
+        } else {
+          thWeight.classList.add('col-hidden');
+        }
+      }
+
+      renderServiceStats();
+    }
+
+    function renderServiceStats() {
+      serviceStatsBody.innerHTML = '';
+      if (participants.length === 0) {
+        serviceStatsBody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: var(--text-muted); padding: 15px;">Pas encore de données.</td></tr>`;
+        return;
+      }
+
+      const services = {};
+
+      participants.forEach(p => {
+        const sName = p.service ? p.service.trim().toUpperCase() : 'AUTRE';
+        if (!services[sName]) {
+          services[sName] = { totalScore: 0, count: 0, hommes: 0, femmes: 0 };
+        }
+        services[sName].totalScore += p.score;
+        services[sName].count += 1;
+        if (p.category === 'H') services[sName].hommes += 1;
+        if (p.category === 'F') services[sName].femmes += 1;
+      });
+
+      const statsArray = Object.keys(services).map(name => ({
+        name,
+        avg: services[name].totalScore / services[name].count,
+        count: services[name].count,
+        h: services[name].hommes,
+        f: services[name].femmes
+      }));
+
+      statsArray.sort((a, b) => b.avg - a.avg);
+
+      const bestServiceAvg = statsArray.length > 0 ? statsArray[0].avg : 0;
+
+      statsArray.forEach((s, idx) => {
+        const tr = document.createElement('tr');
+        
+        let kingBadge = (idx === 0 && bestServiceAvg > 0) ? `<span class="badge badge-king" title="Meilleur groupe en moyenne">👑 King</span>` : '';
+
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(s.name)}</strong>${kingBadge}</td>
+          <td class="score-val">${s.avg.toFixed(1)} kg</td>
+          <td>${s.count} <span style="color:var(--text-muted); font-size:0.8rem;">(${s.h}H / ${s.f}F)</span></td>
+        `;
+        serviceStatsBody.appendChild(tr);
+      });
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.innerText = text;
+      return div.innerHTML;
+    }
+
+    function triggerGifAnimation() {
+      const originalSrc = celebrationGif.src;
+      celebrationGif.src = '';
+      celebrationGif.src = originalSrc;
+
+      gifOverlay.classList.add('active');
+      
+      setTimeout(() => {
+        gifOverlay.classList.remove('active');
+      }, 2800);
+    }
+
+    toggleWeightBtn.addEventListener('click', () => {
+      isWeightColumnVisible = !isWeightColumnVisible;
+      toggleWeightBtn.textContent = isWeightColumnVisible ? '👁️ Masquer Poids' : '👁️ Afficher Poids';
+      renderLeaderboard();
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const service = document.getElementById('service').value.trim();
+      const category = document.getElementById('category').value;
+      const weightVal = document.getElementById('weight').value;
+      const weight = weightVal !== '' ? parseFloat(weightVal) : null;
+      const score = parseFloat(document.getElementById('score').value);
+
+      if (name && !isNaN(score)) {
+        participants.push({ 
+          id: Date.now().toString(), 
+          name, 
+          service,
+          category, 
+          weight,
+          score 
+        });
+        saveData();
+        renderLeaderboard();
+        form.reset();
+        document.getElementById('name').focus();
+
+        triggerGifAnimation();
+      }
+    });
+
+    window.deleteParticipant = function(id) {
+      if (confirm('Supprimer ce participant ?')) {
+        participants = participants.filter(p => p.id !== id);
+        saveData();
+        renderLeaderboard();
+      }
+    };
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderLeaderboard();
+      });
+    });
+
+    resetBtn.addEventListener('click', () => {
+      if (confirm('Attention : cela va effacer TOUS les scores du concours. Continuer ?')) {
+        participants = [];
+        saveData();
+        renderLeaderboard();
+      }
+    });
+
+    exportCsvBtn.addEventListener('click', () => {
+      if (participants.length === 0) {
+        alert('Aucune donnée à exporter.');
+        return;
+      }
+
+      let csvContent = "data:text/csv;charset=utf-8,Nom,Groupe,Categorie,Poids de corps (kg),Grip (kg),Ratio (Grip/Poids)\n";
+
+      participants.forEach(p => {
+        const ratio = (p.weight && p.weight > 0) ? (p.score / p.weight).toFixed(2) : '-';
+        csvContent += `"${p.name}","${p.service || ''}","${p.category}",${p.weight || ''},${p.score},${ratio}\n`;
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `CARSAT_Grip_Strength_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+
+    renderLeaderboard();
+  </script>
+</body>
+</html>
